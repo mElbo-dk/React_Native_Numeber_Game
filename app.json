@@ -25,6 +25,8 @@
     ],
     "ios": {
       "supportsTablet": true
-    }
+    },
+    "description": "Small app that guess a number. Practice recursion and some styling. Using react hooks and expo ",
+    "githubUrl": "https://github.com/mElbo-dk/React_Native_Numeber_Game"
   }
 }
