@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import { StyleSheet, View } from 'react-native'
+import * as Fonts from  'expo-font'
+import { AppLoading } from 'expo'
 
 import Header from './components/Header'
 
@@ -7,11 +9,26 @@ import StartGameScreen from './screens/StartGameScreen'
 import GameScreen from './screens/GameScreen'
 import GameOverScreen from './screens/GameOverScreen'
 
+const getFonts = () => {
+  return Fonts.loadAsync({
+    'open-sans-bold' : require('./assets/fonts/OpenSans-Bold.ttf'),
+    'open-sans' : require('./assets/fonts/OpenSans-Regular.ttf')
+
+  })
+}
 
 export default function App() {
   const [userNumber,setUserNumber] = useState()
   const [gameRounds, setGameRounds] = useState(0)
+  const [fontLoaded, setFontLoaded] = useState(false)
   
+  if (!fontLoaded) {
+    return <AppLoading  startAsync={getFonts}
+      onFinish ={() => setFontLoaded(true)}
+      onError = {(err) => console.log(err)
+      }
+    />
+  }
   const newgameHandler = () => {
     setGameRounds(0)
     setUserNumber(null)
@@ -39,8 +56,8 @@ export default function App() {
   
 
   return (
-    <View style={styles.sceen}>
-      <Header title='Guess Number'/>
+    <View style={styles.screen}>
+      <Header title='Guess Number Game'/>
       {content}
     </View>
   )
@@ -49,7 +66,7 @@ export default function App() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: 'green'
+    fontFamily: 'open-sans-bold'
 
   }
   

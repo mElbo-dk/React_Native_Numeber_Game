@@ -1,10 +1,13 @@
 import React, { useState } from 'react'
-import { View, Text, StyleSheet, Button, Keyboard, TouchableWithoutFeedback, Alert } from 'react-native'
+import { View, StyleSheet, Button, Keyboard, TouchableWithoutFeedback, Alert } from 'react-native'
 
 import Color from '../constants/colors'
 import Card from '../components/Card'
 import Input from '../components/Input'
 import NumberContainer from '../components/NumberContainer'
+import BodyText from '../components/BodyText'
+import TitleText from '../components/TitleText'
+import MainBtn from '../components/MainBtn'
 
 
 const StartGameScreen = props => {
@@ -34,17 +37,16 @@ const StartGameScreen = props => {
     Keyboard.dismiss()
   }
 
-
- 
-
   let confirmedOutput
 
   if (confirmed) {
     confirmedOutput = 
     <Card style={styles.numberContainer}>
-      <Text>You Selected</Text>
+      <BodyText>You Selected</BodyText>
       <NumberContainer>{selectedNumber}</NumberContainer>
-      <Button title='START GAME' color={Color.primary} onPress={() => props.onStartGame(selectedNumber)}/>
+      <MainBtn onPressBtn={() => props.onStartGame(selectedNumber)}>
+          START GAME
+      </MainBtn>
     </Card>
   }
 
@@ -53,9 +55,9 @@ const StartGameScreen = props => {
       onPress={() => Keyboard.dismiss()}>
 
       <View style={styles.screen} >
-        <Text style={styles.title}>Guess a Number!</Text>
+        <TitleText>Guess a Number!</TitleText>
         <Card style={styles.inputContainer}>
-          <Text>Select a number</Text>
+          <BodyText>Select a number</BodyText>
           <Input style={styles.input} 
             keyboardType='number-pad' 
             blurOnSubmit
@@ -79,17 +81,18 @@ const styles = StyleSheet.create({
     padding: 10 ,
     alignItems: 'center',
     justifyContent: 'flex-start'
+    
   },
   title: {
     fontSize: 20,
     marginVertical: 10
-   
   },
   buttonContainer: {
     flexDirection: 'row',
     width: '100%',
     justifyContent: 'space-between',
     paddingHorizontal: 15
+   
 
   },
   inputContainer: {
