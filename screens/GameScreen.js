@@ -1,9 +1,11 @@
 import React , { useState, useRef, useEffect } from 'react'
-import { View, StyleSheet, Button, Alert } from 'react-native'
+import { View, StyleSheet, Button, Alert, ScrollView, Text } from 'react-native'
 
 import NumberContainer from '../components/NumberContainer' 
 import Card from '../components/Card'
 import TitleText from '../components/TitleText'
+import MainBtn from '../components/MainBtn'
+import { Ionicons } from '@expo/vector-icons'
 
 const generateRandomBetween = (min,max,exclude)=>{
   min = Math.ceil(min)
@@ -17,10 +19,9 @@ const generateRandomBetween = (min,max,exclude)=>{
 }
 
 const GameScreen = props => {
-  const [currentGuess, setCurrentGuess] = 
-  useState(generateRandomBetween(1, 100 , props.userChoise)
-  )
-  const [rounds, setRounds] = useState(0)
+  const initialGuess = generateRandomBetween(1, 100 , props.userChoise)
+  const [currentGuess, setCurrentGuess] = useState(initialGuess)
+  const [pastGuesses, setPastGuesses] = useState([initialGuess])
   const currentLow = useRef(1)
   const currentHigh = useRef(100)
 
@@ -31,11 +32,15 @@ const GameScreen = props => {
     } if (direction === 'lower') {
       currentHigh.current = currentGuess
     } else {
-      currentLow.current = currentGuess
+      currentLow.current = currentGuess + 1
+
     }
+    // creating next number for the guess
     const nextNumber = generateRandomBetween(currentLow.current,currentHigh.current,currentGuess)
+    // setting next number in state
     setCurrentGuess(nextNumber)
-    setRounds( curRounds => curRounds + 1)
+    // sending old numbers 
+    setPastGuesses( curPastGuesses => [nextNumber, ...curPastGuesses])
   }
   
   // destructure for not making useEffect render if userChoise or onGameOver changes
@@ -43,7 +48,7 @@ const GameScreen = props => {
 
   useEffect(() => {
     if (currentGuess === userChoise){
-      onGameOver(rounds) 
+      onGameOver(pastGuesses.length) 
     }
 
   }, [currentGuess, onGameOver , userChoise])
@@ -53,9 +58,15 @@ const GameScreen = props => {
       <TitleText>Computers Choise</TitleText>
       <NumberContainer>{currentGuess}</NumberContainer>
       <Card style={styles.buttonsContainer}>
-        <Button title='LOWER' onPress={nextGuessHandler.bind(this,'lower')}/>
-        <Button title='HIGER' onPress={nextGuessHandler.bind(this,'higher')}/>
+        <MainBtn onPressBtn={nextGuessHandler.bind(this,'lower')}><Ionicons name='md-remove' size={20}/> </MainBtn>
+        <MainBtn onPressBtn={nextGuessHandler.bind(this,'higher')}><Ionicons name='md-add' size={20}/></MainBtn>
       </Card>
+      <ScrollView>
+        {pastGuesses.map(guess => 
+          <View key={guess}>
+            <Text>{guess}</Text>
+          </View>)}
+      </ScrollView>
     </View>
   )
 
