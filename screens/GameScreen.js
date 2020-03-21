@@ -1,5 +1,5 @@
 import React , { useState, useRef, useEffect } from 'react'
-import { View, StyleSheet, Button, Alert, ScrollView, Text } from 'react-native'
+import { View, StyleSheet, Alert, ScrollView, FlatList } from 'react-native'
 
 import NumberContainer from '../components/NumberContainer' 
 import Card from '../components/Card'
@@ -19,17 +19,17 @@ const generateRandomBetween = (min,max,exclude)=>{
   }
 }
 
-const listValueHandeler = (value, numbOfRounds) => (
-  <View key={value} style = {styles.listItems}>
-    <BodyText>#{numbOfRounds}</BodyText>
-    <BodyText>{value}</BodyText>
+const listValueHandeler = (listLength, itemData) => (
+  <View style = {styles.listItems}>
+    <BodyText>#{listLength - itemData.index}</BodyText>
+    <BodyText>{itemData.item}</BodyText>
   </View> 
 )
 
 const GameScreen = props => {
   const initialGuess = generateRandomBetween(1, 100 , props.userChoise)
   const [currentGuess, setCurrentGuess] = useState(initialGuess)
-  const [pastGuesses, setPastGuesses] = useState([initialGuess])
+  const [pastGuesses, setPastGuesses] = useState([initialGuess.toString()])
   const currentLow = useRef(1)
   const currentHigh = useRef(100)
 
@@ -48,7 +48,7 @@ const GameScreen = props => {
     // setting next number in state
     setCurrentGuess(nextNumber)
     // sending old numbers 
-    setPastGuesses( curPastGuesses => [nextNumber, ...curPastGuesses])
+    setPastGuesses( curPastGuesses => [nextNumber.toString() , ...curPastGuesses])
   }
   
   // destructure for not making useEffect render if userChoise or onGameOver changes
@@ -70,7 +70,11 @@ const GameScreen = props => {
         <MainBtn onPressBtn={nextGuessHandler.bind(this,'higher')}><Ionicons name='md-add' size={20}/></MainBtn>
       </Card>
       <View style = {styles.listContainer}>
-        <ScrollView contentContainerStyle = {styles.list}>{pastGuesses.map((guess, index) => listValueHandeler(guess, pastGuesses.length  - index))}</ScrollView>
+        {/* <ScrollView contentContainerStyle = {styles.list}>{pastGuesses.map((guess, index) => listValueHandeler(guess, pastGuesses.length  - index))}</ScrollView> */}
+        <FlatList keyExtractor={(item) => item} 
+          data={ pastGuesses } 
+          renderItem={listValueHandeler.bind(this, pastGuesses.length)}
+          contentContainerStyle={styles.list}/>
       </View>
     </View>
   )
