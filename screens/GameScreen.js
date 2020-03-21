@@ -4,6 +4,7 @@ import { View, StyleSheet, Button, Alert, ScrollView, Text } from 'react-native'
 import NumberContainer from '../components/NumberContainer' 
 import Card from '../components/Card'
 import TitleText from '../components/TitleText'
+import BodyText from '../components/BodyText'
 import MainBtn from '../components/MainBtn'
 import { Ionicons } from '@expo/vector-icons'
 
@@ -17,6 +18,13 @@ const generateRandomBetween = (min,max,exclude)=>{
     return randomNumber
   }
 }
+
+const listValueHandeler = (value, numbOfRounds) => (
+  <View key={value} style = {styles.listItems}>
+    <BodyText>#{numbOfRounds}</BodyText>
+    <BodyText>{value}</BodyText>
+  </View> 
+)
 
 const GameScreen = props => {
   const initialGuess = generateRandomBetween(1, 100 , props.userChoise)
@@ -61,22 +69,22 @@ const GameScreen = props => {
         <MainBtn onPressBtn={nextGuessHandler.bind(this,'lower')}><Ionicons name='md-remove' size={20}/> </MainBtn>
         <MainBtn onPressBtn={nextGuessHandler.bind(this,'higher')}><Ionicons name='md-add' size={20}/></MainBtn>
       </Card>
-      <ScrollView>
-        {pastGuesses.map(guess => 
-          <View key={guess}>
-            <Text>{guess}</Text>
-          </View>)}
-      </ScrollView>
+      <View style = {styles.listContainer}>
+        <ScrollView contentContainerStyle = {styles.list}>{pastGuesses.map((guess, index) => listValueHandeler(guess, pastGuesses.length  - index))}</ScrollView>
+      </View>
     </View>
   )
 
 }
 
+
+
 const styles = StyleSheet.create({
   screen: {
-    // flex: 1,
+    flex: 1,
     padding: 10,
     alignItems: 'center'
+    
   },
   buttonsContainer: {
     flexDirection: 'row',
@@ -84,7 +92,34 @@ const styles = StyleSheet.create({
     marginTop: 10,
     width: 300,
     maxWidth: '80%'
+  },
 
+  list: {
+    flexGrow: 1,
+    // backgroundColor: 'green',
+    alignContent: 'center',
+    justifyContent: 'flex-end'
+    
+    
+  },
+
+  listItems: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    borderWidth: 1 , 
+    borderColor: '#ccc',
+    borderRadius: 20,
+    // backgroundColor: 'yellow',
+    marginVertical: 5,
+    padding: 15 
+    
+  },
+  listContainer: {
+    width: 200,
+    maxWidth: '50%',
+    height: '60%',
+    maxHeight: '50%'
+    
   }
 
 })
