@@ -1,5 +1,5 @@
 import React , { useState, useRef, useEffect } from 'react'
-import { View, StyleSheet, Alert, ScrollView, FlatList } from 'react-native'
+import { View, StyleSheet, Alert, ScrollView, FlatList, Dimensions } from 'react-native'
 
 import NumberContainer from '../components/NumberContainer' 
 import Card from '../components/Card'
@@ -7,6 +7,7 @@ import TitleText from '../components/TitleText'
 import BodyText from '../components/BodyText'
 import MainBtn from '../components/MainBtn'
 import { Ionicons } from '@expo/vector-icons'
+import colors from '../constants/colors'
 
 const generateRandomBetween = (min,max,exclude)=>{
   min = Math.ceil(min)
@@ -30,6 +31,8 @@ const GameScreen = props => {
   const initialGuess = generateRandomBetween(1, 100 , props.userChoise)
   const [currentGuess, setCurrentGuess] = useState(initialGuess)
   const [pastGuesses, setPastGuesses] = useState([initialGuess.toString()])
+  const [turnLayoutWidth, setTurnLayoutWidth] = useState(Dimensions.get('window').width)
+  const [turnLayoutHeight, setTurnLayoutHeight] = useState(Dimensions.get('window').height)
   const currentLow = useRef(1)
   const currentHigh = useRef(100)
 
@@ -51,6 +54,23 @@ const GameScreen = props => {
     setPastGuesses( curPastGuesses => [nextNumber.toString() , ...curPastGuesses])
   }
   
+  // this is done when rendering to change the layout , remove eventlistener and add one for checking 
+  // if the dive turn
+  useEffect(() => {
+    const updateLayout = () =>{
+      setTurnLayoutWidth(Dimensions.get('window').width),
+      setTurnLayoutHeight(Dimensions.get('window').height)
+    }
+
+    Dimensions.addEventListener('change', updateLayout)
+  
+    return () => {
+      Dimensions.removeEventListener('change', updateLayout)
+    }
+
+  })
+
+
   // destructure for not making useEffect render if userChoise or onGameOver changes
   const { userChoise, onGameOver } = props
 
@@ -61,6 +81,35 @@ const GameScreen = props => {
 
   }, [currentGuess, onGameOver , userChoise])
   
+  // to make the changes to layout when screen is changing size
+  let listContainerStyle = styles.listContainer
+  if (turnLayoutWidth < 350) {
+    listContainerStyle = styles.listContainerBig
+  }
+
+  if (turnLayoutHeight < 500) {
+    return (
+      <View style={styles.screen}>
+        <TitleText>Computers Choise</TitleText>
+        <View style = {styles.turnLayout}>
+          <MainBtn onPressBtn={nextGuessHandler.bind(this,'lower')}><Ionicons name='md-remove' size={20}/> </MainBtn>
+          <NumberContainer>{currentGuess}</NumberContainer>
+          <MainBtn onPressBtn={nextGuessHandler.bind(this,'higher')}><Ionicons name='md-add' size={20}/></MainBtn>
+        </View>
+        <View style = {listContainerStyle}>
+          {/* <ScrollView contentContainerStyle = {styles.list}>{pastGuesses.map((guess, index) => listValueHandeler(guess, pastGuesses.length  - index))}</ScrollView> */}
+          <FlatList keyExtractor={(item) => item} 
+            data={ pastGuesses } 
+            renderItem={listValueHandeler.bind(this, pastGuesses.length)}
+            contentContainerStyle={styles.list}/>
+        </View>
+      </View>
+
+    )
+  }
+
+
+
   return (
     <View style={styles.screen}>
       <TitleText>Computers Choise</TitleText>
@@ -69,7 +118,7 @@ const GameScreen = props => {
         <MainBtn onPressBtn={nextGuessHandler.bind(this,'lower')}><Ionicons name='md-remove' size={20}/> </MainBtn>
         <MainBtn onPressBtn={nextGuessHandler.bind(this,'higher')}><Ionicons name='md-add' size={20}/></MainBtn>
       </Card>
-      <View style = {styles.listContainer}>
+      <View style = {listContainerStyle}>
         {/* <ScrollView contentContainerStyle = {styles.list}>{pastGuesses.map((guess, index) => listValueHandeler(guess, pastGuesses.length  - index))}</ScrollView> */}
         <FlatList keyExtractor={(item) => item} 
           data={ pastGuesses } 
@@ -93,18 +142,23 @@ const styles = StyleSheet.create({
   buttonsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginTop: 10,
+    marginTop: Dimensions.get('window').height > 600 ? 30 : 10,
     width: 300,
     maxWidth: '80%'
   },
 
+  turnLayout: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    width: '60%'
+
+  },
   list: {
     flexGrow: 1,
     // backgroundColor: 'green',
     alignContent: 'center',
     justifyContent: 'flex-end'
-    
-    
   },
 
   listItems: {
@@ -119,13 +173,14 @@ const styles = StyleSheet.create({
     
   },
   listContainer: {
-    width: 200,
-    maxWidth: '50%',
-    height: '60%',
-    maxHeight: '50%'
+    flex: 1,
+    width: Dimensions.get('window').width > 600 ? '50%' : '80%'
     
+  },
+  listContainerBig: {
+    flex: 1,
+    width: Dimensions.get('window').width > 600 ? '50%' : '80%'
   }
-
 })
 
 export default GameScreen
